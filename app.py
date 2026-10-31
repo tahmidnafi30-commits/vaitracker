@@ -38,7 +38,41 @@ def jarvis_page():
 def send_cmd():
     current_jarvis_cmd["cmd"]=request.args.get("cmd","")
     return "OK"
+# --- JARVIS PHONE ADDON START ---
+current_jarvis_cmd = {"cmd": ""}
 
+@app.route('/jarvis')
+def jarvis_page():
+    return """
+    <html><body style="background:black;color:white;text-align:center;font-family:sans-serif;padding-top:50px">
+    <h1 style="color:cyan">JARVIS PHONE</h1>
+    <button id="b" style="padding:30px 50px;border-radius:50%;background:cyan;color:black;font-size:22px;font-weight:bold;border:none">TAP & SPEAK</button>
+    <p id="t" style="margin-top:20px;font-size:18px;color:yellow"></p>
+    <script>
+    const b=document.getElementById('b'),t=document.getElementById('t');
+    const R=new(window.SpeechRecognition||window.webkitSpeechRecognition)();
+    R.lang='en-US';
+    b.onclick=()=>{R.start();t.innerText='Listening...';b.style.background='red'};
+    R.onresult=(e)=>{
+        let c=e.results[0][0].transcript;
+        t.innerText='You said: '+c;
+        b.style.background='cyan';
+        fetch('/send-command?cmd='+encodeURIComponent(c));
+    }
+    </script>
+    </body></html>
+    """
+
+@app.route('/send-command')
+def send_cmd():
+    cmd = request.args.get("cmd","")
+    current_jarvis_cmd["cmd"] = cmd
+    return "OK"
+
+@app.route('/get-command')
+def get_cmd():
+    return current_jarvis_cmd
+# --- JARVIS PHONE ADDON END ---
 @app.route('/get-command')
 def get_cmd():
     return current_jarvis_cmd
