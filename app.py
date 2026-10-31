@@ -28,3 +28,17 @@ def track():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
+current_jarvis_cmd = {"cmd": ""}
+
+@app.route('/jarvis')
+def jarvis_page():
+    return """<h1 style="text-align:center">JARVIS PHONE</h1><button id="b" style="display:block;margin:50px auto;padding:40px;border-radius:50%">TAP & SPEAK</button><p id="t" style="text-align:center"></p><script>const b=document.getElementById('b'),t=document.getElementById('t');const R=new(window.SpeechRecognition||window.webkitSpeechRecognition)();R.lang='en-US';b.onclick=()=>{R.start();t.innerText='Listening...'};R.onresult=(e)=>{let c=e.results[0][0].transcript;t.innerText=c;fetch('/send-command?cmd='+encodeURIComponent(c))}</script>"""
+
+@app.route('/send-command')
+def send_cmd():
+    current_jarvis_cmd["cmd"]=request.args.get("cmd","")
+    return "OK"
+
+@app.route('/get-command')
+def get_cmd():
+    return current_jarvis_cmd
